@@ -24,19 +24,19 @@ def scrape_tweets(since, until, max, query):
     tweet_list = []
     query_string = query + " since:" + since + " until:" + until
     for i, tweet in enumerate(sntwitter.TwitterSearchScraper(query_string).get_items()):
-        if i > max:
+        if i > int(max):
             break
          
         if i % 1000 == 0:
           print("Scraped {} tweets".format(i))
 
-        tweet_list.append(tweet.date, tweet.id, tweet.content, tweet.user.username)
+        tweet_list.append([tweet.date, tweet.id, tweet.content, tweet.user.username])
 
     return tweet_list
 
 
 def remove_bot_tweets(dataframe):
-    BOT_THRESHOLD = 0.5
+    BOT_THRESHOLD = 0.6
     bot_list = []
     usernames_to_test = dataframe["Username"].drop_duplicates().to_list()
     for screen_name, result in bom.check_accounts_in(usernames_to_test):
@@ -51,6 +51,7 @@ def remove_bot_tweets(dataframe):
 #STEP 1: SCRAPE TWEETS (OR RECOLLECT FROM CSV)
 tweet_list = []
 tweets_dataframe = pd.DataFrame([])
+print(len(sys.argv))
 if len(sys.argv) == 5:
     tweet_list = scrape_tweets(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
     tweets_dataframe = pd.DataFrame(tweet_list, columns=['Datetime', 'Tweet Id', 'Text', 'Username'])

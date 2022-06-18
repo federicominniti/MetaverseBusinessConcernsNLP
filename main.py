@@ -1,4 +1,3 @@
-from cmath import nan
 import snscrape.modules.twitter as sntwitter
 import pandas as pd
 import botometer

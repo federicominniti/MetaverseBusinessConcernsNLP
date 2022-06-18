@@ -26,6 +26,9 @@ def scrape_tweets(since, until, max, query):
     for i, tweet in enumerate(sntwitter.TwitterSearchScraper(query_string).get_items()):
         if i > max:
             break
+         
+        if i % 1000 == 0:
+          print("Scraped {} tweets".format(i))
 
         tweet_list.append(tweet.date, tweet.id, tweet.content, tweet.user.username)
 

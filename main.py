@@ -47,7 +47,7 @@ def remove_bot_tweets(dataframe):
     return dataframe[~dataframe['Username'].isin(bot_list)]
 
 
-
+#STEP 1: SCRAPE TWEETS (OR RECOLLECT FROM CSV)
 tweet_list = []
 tweets_dataframe = pd.DataFrame([])
 if len(sys.argv) == 5:
@@ -58,4 +58,5 @@ else:
     tweets_dataframe = pd.read_csv('text-query-tweets.csv')
 
 
+# STEP 2: REMOVE TWEETS FROM BOTS
 tweets_dataframe = remove_bot_tweets(tweets_dataframe)

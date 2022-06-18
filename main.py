@@ -57,7 +57,7 @@ if len(sys.argv) == 5:
     tweets_dataframe = pd.DataFrame(tweet_list, columns=['Datetime', 'Tweet Id', 'Text', 'Username'])
     tweets_dataframe.to_csv('text-query-tweets.csv', sep=',', index=False)
 else:
-    tweets_dataframe = pd.read_csv('text-query-tweets.csv')
+    tweets_dataframe = pd.read_csv('tweets-final.csv')
 
 print("done!")
 # STEP 2: REMOVE TWEETS FROM BOTS

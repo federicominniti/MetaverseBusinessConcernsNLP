@@ -35,11 +35,9 @@ def scrape_tweets(since, until, max, query):
 def remove_bot_tweets(dataframe):
     BOT_THRESHOLD = 0.5
     bot_list = []
-    scores_list = []
     usernames_to_test = dataframe["Username"].drop_duplicates().to_list()
     for screen_name, result in bom.check_accounts_in(usernames_to_test):
         bot_score = max(result['raw_scores']['english']['overall'], result['raw_scores']['universal']['overall'])
-        scores_list.append(bot_score)
         if bot_score > BOT_THRESHOLD:
             bot_list.append(screen_name)
         print("@{0} = {1:.2f}".format(screen_name, bot_score))

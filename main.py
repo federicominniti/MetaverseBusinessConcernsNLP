@@ -60,6 +60,9 @@ if len(sys.argv) == 5:
     tweets_dataframe.to_csv('text-query-tweets.csv', sep=',', index=False)
 else:
     tweets_dataframe = pd.read_csv('tweets_final.csv')
+    #Remove URL and NaN values
+    tweets_dataframe = tweets_dataframe[~tweets_dataframe.Text.str.contains(r'((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)', na=False)]
+    #tweets_dataframe = tweets_dataframe.sample(frac=0.1, replace=False, random_state=1)
 
 print("done!")
 # STEP 2: REMOVE TWEETS FROM BOTS
@@ -80,7 +83,7 @@ def create_wordcloud(tweet_counter, filename):
                         height = 500,
                         relative_scaling = 0.5,
                         normalize_plurals = False).generate_from_frequencies(dict(tweet_counter.most_common(100)))
-    tweet_cloud.to_file("./imgs/{}.png".format(filename))
+    tweet_cloud.to_file("./{}.png".format(filename))
 
 def clean_text(text):
     # Remove twitter handlers
@@ -107,7 +110,7 @@ def clean_text(text):
     return text
 
 def readlines():
-    stopwords_file = open('stopwords.txt','r')
+    stopwords_file = open('stopwords.txt', 'r')
     lines = stopwords_file.readlines()
     # Strips the newline character
     stopwords = []
@@ -116,11 +119,12 @@ def readlines():
     return stopwords
 
 STOPWORDS_EN = set(stopwords.words("english"))
-#file_stopwords = readlines()
-#STOPWORDS_EN.union(file_stopwords)
+file_stopwords = readlines()
+STOPWORDS_EN = STOPWORDS_EN.union(set(file_stopwords))
 
 STEMMER_EN = PorterStemmer()
-#tweets_dataframe = tweets_dataframe[0:200]
+#tweets_dataframe = tweets_dataframe[0:50000]
+
 formatted_tweets = tweets_dataframe.to_dict('records')
 
 merged_splitted = []
@@ -128,35 +132,64 @@ merged_normalized = []
 merged_filtered = []
 merged_stemmed = []
 merged_destemmed = []
-
+count = 0
 for i in formatted_tweets:
-    if "http" not in i["Text"]:
-        clean_text(i["Text"])
-        tokens = re.split('\W+', i["Text"], flags=re.UNICODE)
-        normalized = [unidecode(t.lower()) for t in tokens]
-        filtered = [t for t in normalized if len(t) >= 3 and t not in STOPWORDS_EN]
-        stemmed = [STEMMER_EN.stem(t) for t in filtered]
+    count = count + 1
+    if count % 100 == 0:
+        print(count)
+    #if "http" not in i["Text"]:
+    clean_text(i["Text"])
+    tokens = re.split('\W+', i["Text"], flags=re.UNICODE)
+    normalized = [unidecode(t.lower()) for t in tokens]
+    filtered = [t for t in normalized if len(t) >= 3 and t not in STOPWORDS_EN]
+    stemmed = [STEMMER_EN.stem(t) for t in filtered]
 
-        stem_mapping = {}
-        for f in filtered:
-            stemmed_f = STEMMER_EN.stem(f)
-            if stemmed_f not in stem_mapping:
-                stem_mapping[stemmed_f] = Counter()
-            stem_mapping[stemmed_f].update([f])
+    stem_mapping = {}
+    for f in filtered:
+        stemmed_f = STEMMER_EN.stem(f)
+        if stemmed_f not in stem_mapping:
+            stem_mapping[stemmed_f] = Counter()
+        stem_mapping[stemmed_f].update([f])
 
-        i["tokens"] = [stem_mapping[t].most_common(1)[0][0] for t in stemmed]
+    i["tokens"] = [stem_mapping[t].most_common(1)[0][0] for t in stemmed]
 
-        merged_splitted = merged_splitted + tokens
-        merged_normalized = merged_normalized + normalized
-        merged_filtered = merged_filtered + filtered
-        merged_stemmed = merged_stemmed + stemmed
-        merged_destemmed = merged_destemmed + i["tokens"]
+    merged_splitted = merged_splitted + tokens
+    merged_normalized = merged_normalized + normalized
+    merged_filtered = merged_filtered + filtered
+    merged_stemmed = merged_stemmed + stemmed
+    merged_destemmed = merged_destemmed + i["tokens"]
 
-v = Counter(merged_destemmed)
-print(v)
 
-#create_wordcloud(Counter(merged_splitted), "wordcloud_1")
-#create_wordcloud(Counter(merged_normalized), "wordcloud_2")
-#create_wordcloud(Counter(merged_filtered), "wordcloud_3")
-#create_wordcloud(Counter(merged_stemmed), "wordcloud_4")
-#create_wordcloud(Counter(merged_destemmed), "wordcloud_5")
+create_wordcloud(Counter(merged_splitted), "wordcloud_1")
+create_wordcloud(Counter(merged_normalized), "wordcloud_2")
+create_wordcloud(Counter(merged_filtered), "wordcloud_3")
+create_wordcloud(Counter(merged_stemmed), "wordcloud_4")
+create_wordcloud(Counter(merged_destemmed), "wordcloud_5")
+
+# 4
+from transformers import pipeline
+sentiment_analysis = pipeline("sentiment-analysis",model="siebert/sentiment-roberta-large-english")
+
+# 0 -> positive
+# 1 -> neutral
+# 2 -> negative
+
+tweets_dataframe["sentiment"] = 1
+count = 0
+def int_sentiment(row):
+    global count
+    count = count + 1
+    if count % 10 == 0:
+        print(count)
+    res = sentiment_analysis(row["Text"])
+    if res[0]["score"] > 0.6:
+        if res[0]["label"] == 'POSITIVE':
+            return 0
+        else:
+            return 2
+
+tweets_dataframe["sentiment"] = tweets_dataframe.apply(lambda row : int_sentiment(row), axis= 1)
+
+print(tweets_dataframe)
+
+tweets_dataframe.to_csv('classified_tweets.csv', sep=',', index=False)

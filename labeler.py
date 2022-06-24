@@ -1,9 +1,4 @@
 import csv
-from os import system, name
-
-# import sleep to show output for some time period
-from time import sleep
-
 
 def label(text):
     print("Text: \n" + text + "\n")
@@ -17,9 +12,6 @@ def label(text):
     elif label == "stop":
         return -1
     return label
-
-
-
 
 if __name__ == "__main__":
     with open('tweets_final.csv') as csv_file:

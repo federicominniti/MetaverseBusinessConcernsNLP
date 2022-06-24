@@ -14,7 +14,7 @@ def create_wordcloud(tweet_counter, filename):
     tweet_cloud.to_file("./{}.png".format(filename))
 
 # Get the list of all files and directories
-path = ".//DBSCAN"
+path = "../DBSCAN"
 
 token_list = []
 tweets_dataframe = pd.DataFrame([])

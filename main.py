@@ -7,6 +7,7 @@ from collections import Counter
 from nltk.corpus import stopwords
 from nltk.stem.porter import *
 import pandas as pd
+import re
 
 # create the wordcloud
 def create_wordcloud(tweet_counter, filename):

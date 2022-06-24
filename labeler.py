@@ -14,7 +14,7 @@ def label(text):
     return label
 
 if __name__ == "__main__":
-    with open('tweets_final.csv') as csv_file:
+    with open('./data/rawDataset.csv') as csv_file:
         with open('tweets_final_labeled.csv', 'a+') as labeled_csv_file:
             print("Running tweet labeler..")
         with open('tweets_final_labeled.csv','r+') as labeled_csv_file:

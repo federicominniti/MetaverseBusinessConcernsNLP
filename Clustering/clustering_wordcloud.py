@@ -14,7 +14,7 @@ def create_wordcloud(tweet_counter, filename):
     tweet_cloud.to_file("./{}.png".format(filename))
 
 # Get the list of all files and directories
-path = "../DBSCAN"
+path = "./"
 
 token_list = []
 tweets_dataframe = pd.DataFrame([])
@@ -27,7 +27,7 @@ for x in os.listdir(path):
         for i in range(tweets_dataframe["Class"].max()+1):
             rows = tweets_dataframe.loc[tweets_dataframe["Class"] == i]
             text = ""
-            for j in rows["Text_Cleaned"]:
+            for j in rows["Text"]:
                 text = text + j
             tokens = re.split('\W+', text, flags=re.UNICODE)
             size = len(x)

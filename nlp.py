@@ -1,4 +1,5 @@
 import string
+import botometer
 import nltk
 nltk.download('stopwords')
 from wordcloud import WordCloud
@@ -9,6 +10,21 @@ from nltk.stem.porter import *
 import pandas as pd
 import re
 
+twitter_app_auth = {
+                    'consumer_key': "consumer_key",
+                    'consumer_secret': "consumer_secret",
+                    'access_token': "access_token",
+                    'access_token_secret': "access_token_secret"
+                   }
+
+botometer_api_url = "https://botometer-pro.p.rapidapi.com"
+
+bom = botometer.Botometer(
+                wait_on_ratelimit = True,
+                botometer_api_url=botometer_api_url,
+                rapidapi_key = "rapidapi_key",
+                **twitter_app_auth)
+
 # create the wordcloud
 def create_wordcloud(tweet_counter, filename):
     tweet_cloud = WordCloud(background_color="white",
@@ -17,6 +33,19 @@ def create_wordcloud(tweet_counter, filename):
                             relative_scaling=0.5,
                             normalize_plurals=False).generate_from_frequencies(dict(tweet_counter.most_common(100)))
     tweet_cloud.to_file("./{}.png".format(filename))
+
+
+def remove_bot_tweets(dataframe):
+    BOT_THRESHOLD = 0.6
+    bot_list = []
+    usernames_to_test = dataframe["Username"].drop_duplicates().to_list()
+    for screen_name, result in bom.check_accounts_in(usernames_to_test):
+        bot_score = max(result['raw_scores']['english']['overall'], result['raw_scores']['universal']['overall'])
+        if bot_score > BOT_THRESHOLD:
+            bot_list.append(screen_name)
+        print("@{0} = {1:.2f}".format(screen_name, bot_score))
+
+    return dataframe[~dataframe['Username'].isin(bot_list)]
 
 
 def clean_text(text):
@@ -58,6 +87,9 @@ def readlines():
 tweet_list = []
 tweets_dataframe = pd.DataFrame([])
 tweets_dataframe = pd.read_csv('Dataset900EachDay.csv')
+
+# REMOVE TWEETS FROM BOTS
+#tweets_dataframe = remove_bot_tweets(tweets_dataframe)
 
 # NLP(TOKENIZATION, NORMALIZATION, FILTERING, STEMMING, DESTEMMING)
 STOPWORDS_EN = set(stopwords.words("english"))

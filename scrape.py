@@ -28,6 +28,6 @@ while str(start_date) != str(stop_date):
             tweets_dataframe = tweets_dataframe.append(tmp)
             count = count + 1
 
-tweets_dataframe.to_csv("dataset.csv", sep=",", index=False)
+tweets_dataframe.to_csv("snscrape_dataset.csv", sep=",", index=False)
 
 print("done!")

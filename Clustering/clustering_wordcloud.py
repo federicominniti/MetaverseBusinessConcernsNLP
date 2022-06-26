@@ -1,3 +1,6 @@
+# This python script generates the WordClouds of each clustering results
+# provided in csv in the specified folder
+
 import os
 from collections import Counter
 from wordcloud import WordCloud

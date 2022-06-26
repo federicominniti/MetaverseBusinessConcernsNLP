@@ -34,7 +34,7 @@ def create_wordcloud(tweet_counter, filename):
                             normalize_plurals=False).generate_from_frequencies(dict(tweet_counter.most_common(100)))
     tweet_cloud.to_file("./{}.png".format(filename))
 
-
+# remove tweets with the Botometer score over the BOT_THRESHOLD
 def remove_bot_tweets(dataframe):
     BOT_THRESHOLD = 0.6
     bot_list = []
@@ -75,6 +75,7 @@ def clean_text(text):
 
     return text
 
+# read the stopwords from a file to remove
 def readlines():
     stopwords_file = open('stopwords.txt', 'r')
     lines = stopwords_file.readlines()
@@ -84,6 +85,7 @@ def readlines():
         stopwords.append(line.strip())
     return stopwords
 
+# read the raw dataset
 tweet_list = []
 tweets_dataframe = pd.DataFrame([])
 tweets_dataframe = pd.read_csv('Dataset900EachDay.csv')
@@ -105,19 +107,19 @@ merged_normalized = []
 merged_filtered = []
 merged_stemmed = []
 merged_destemmed = []
-count = 0
-for i in formatted_tweets:
-    count = count + 1
-    if count % 1000 == 0:
-        file_object = open('res.txt', 'a')
-        file_object.write("NLP {} tweets\n".format(count))
-        file_object.close()
-    i["Text_Cleaned"] = clean_text(i["Text"])
-    tokens = re.split('\W+', i["Text_Cleaned"], flags=re.UNICODE)
-    normalized = [unidecode(t.lower()) for t in tokens]
-    filtered = [t for t in normalized if len(t) >= 3 and t not in STOPWORDS_EN]
-    stemmed = [STEMMER_EN.stem(t) for t in filtered]
 
+for i in formatted_tweets:
+    # cleaning
+    i["Text_Cleaned"] = clean_text(i["Text"])
+    # tokenization
+    tokens = re.split('\W+', i["Text_Cleaned"], flags=re.UNICODE)
+    # normalization
+    normalized = [unidecode(t.lower()) for t in tokens]
+    # filtering
+    filtered = [t for t in normalized if len(t) >= 3 and t not in STOPWORDS_EN]
+    # stemming
+    stemmed = [STEMMER_EN.stem(t) for t in filtered]
+    # destemming
     stem_mapping = {}
     for f in filtered:
         stemmed_f = STEMMER_EN.stem(f)
@@ -134,6 +136,7 @@ for i in formatted_tweets:
     merged_stemmed = merged_stemmed + stemmed
     merged_destemmed = merged_destemmed + i["tokens"]
 
+# wordcloud generation of each step of NLP process
 create_wordcloud(Counter(merged_splitted), "wordcloud_1")
 create_wordcloud(Counter(merged_normalized), "wordcloud_2")
 create_wordcloud(Counter(merged_filtered), "wordcloud_3")

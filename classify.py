@@ -4,14 +4,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction import text
 
 # Loading of model and used features in classification
-features = pickle.load(open("./data/features.pkl", 'rb'))
-loaded_model = pickle.load(open("./data/GaussianProcess.pkl", 'rb'))
+features = pickle.load(open("data/features_selected.pkl", 'rb'))
+loaded_model = pickle.load(open("data/classifier.pkl", 'rb'))
 
 print(features)
 
 # Load the dataset to classify
 df = pd.DataFrame([])
-df = pd.read_csv('data/cleaned_tweets.csv')
+df = pd.read_csv('data/dataset_post_cleaning.csv')
 
 # Convert a collection of raw documents to a matrix of TF-IDF features.
 punc = ['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}',"%"]
@@ -27,4 +27,4 @@ print(df2)
 # Tweets classification
 df["GaussianProcess"] = loaded_model.predict(df2)
 
-df.to_csv('./data/PostClassification.csv', sep=',', index=False)
+df.to_csv('./data/dataset_post_classification.csv', sep=',', index=False)

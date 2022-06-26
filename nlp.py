@@ -88,7 +88,7 @@ def readlines():
 # read the raw dataset
 tweet_list = []
 tweets_dataframe = pd.DataFrame([])
-tweets_dataframe = pd.read_csv('data/Dataset900EachDay.csv')
+tweets_dataframe = pd.read_csv('data/raw_dataset.csv')
 
 # REMOVE TWEETS FROM BOTS
 #tweets_dataframe = remove_bot_tweets(tweets_dataframe)
@@ -145,5 +145,5 @@ create_wordcloud(Counter(merged_destemmed), "wordcloud_5")
 
 formatted_tweets = pd.DataFrame(formatted_tweets)
 formatted_tweets = formatted_tweets[formatted_tweets['tokens'].map(len) != 0]
-formatted_tweets.to_csv('cleaned_tweets.csv', sep=',', index=False)
+formatted_tweets.to_csv('dataset_post_cleaning.csv', sep=',', index=False)
 

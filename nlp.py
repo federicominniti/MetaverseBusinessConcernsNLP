@@ -88,7 +88,7 @@ def readlines():
 # read the raw dataset
 tweet_list = []
 tweets_dataframe = pd.DataFrame([])
-tweets_dataframe = pd.read_csv('Dataset900EachDay.csv')
+tweets_dataframe = pd.read_csv('data/Dataset900EachDay.csv')
 
 # REMOVE TWEETS FROM BOTS
 #tweets_dataframe = remove_bot_tweets(tweets_dataframe)

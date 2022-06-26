@@ -11,7 +11,7 @@ print(features)
 
 # Load the dataset to classify
 df = pd.DataFrame([])
-df = pd.read_csv('cleaned_tweets.csv')
+df = pd.read_csv('data/cleaned_tweets.csv')
 
 # Convert a collection of raw documents to a matrix of TF-IDF features.
 punc = ['.', ',', '"', "'", '?', '!', ':', ';', '(', ')', '[', ']', '{', '}',"%"]
